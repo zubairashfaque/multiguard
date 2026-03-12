@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "title": "MultiGuard Model Monitoring",
+    "tags": ["multiguard", "mlops"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Prediction Latency (p95)",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "title": "Request Rate",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "title": "Prediction Distribution",
+        "type": "histogram",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "title": "Data Drift Score",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "version": 1
+  }
+}

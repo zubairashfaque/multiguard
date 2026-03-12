@@ -1,0 +1,30 @@
+api:
+  host: 0.0.0.0
+  port: 8000
+  workers: 1
+  timeout: 120
+
+model:
+  checkpoint: models/final/best_fusion
+  device: cuda
+  precision: fp16
+
+inference:
+  batch_size: 1
+  image_size: 224
+  max_text_length: 128
+  confidence_threshold: 0.5
+
+cascade:
+  enabled: true
+  stages:
+    - name: clip_zero_shot
+      threshold: 0.85
+      model: openai/clip-vit-large-patch14
+    - name: full_model
+      threshold: 0.5
+      model: models/final/best_fusion
+
+rate_limiting:
+  requests_per_minute: 60
+  max_concurrent: 10

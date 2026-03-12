@@ -1,0 +1,49 @@
+vision:
+  clip:
+    model_id: openai/clip-vit-large-patch14
+    hidden_size: 1024
+    image_size: 224
+    patch_size: 14
+  vit:
+    model_id: google/vit-base-patch16-224
+    hidden_size: 768
+    image_size: 224
+    patch_size: 16
+  dinov2:
+    model_id: facebook/dinov2-base
+    hidden_size: 768
+    image_size: 224
+    patch_size: 14
+  swin:
+    model_id: microsoft/swin-base-patch4-window7-224
+    hidden_size: 1024
+    image_size: 224
+    patch_size: 4
+
+language:
+  roberta:
+    model_id: roberta-base
+    hidden_size: 768
+    max_length: 512
+    vocab_size: 50265
+  bert:
+    model_id: bert-base-uncased
+    hidden_size: 768
+    max_length: 512
+    vocab_size: 30522
+  distilroberta:
+    model_id: distilroberta-base
+    hidden_size: 768
+    max_length: 512
+
+multimodal:
+  clip:
+    model_id: openai/clip-vit-large-patch14
+    vision_hidden_size: 1024
+    text_hidden_size: 768
+    projection_dim: 768
+  siglip:
+    model_id: google/siglip-base-patch16-224
+    vision_hidden_size: 768
+    text_hidden_size: 768
+    projection_dim: 768

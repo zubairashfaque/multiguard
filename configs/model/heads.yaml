@@ -1,0 +1,18 @@
+classifier:
+  num_labels: 2
+  hidden_dims: [256]
+  activation: gelu
+  dropout: 0.3
+  label_smoothing: 0.1
+  class_weights: auto
+
+retrieval:
+  embedding_dim: 256
+  normalize: true
+  temperature: 0.07
+
+vqa:
+  answer_vocab_size: 3129
+  hidden_dim: 512
+  num_layers: 2
+  dropout: 0.3

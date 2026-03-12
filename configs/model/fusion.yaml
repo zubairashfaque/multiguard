@@ -1,0 +1,18 @@
+late_fusion:
+  method: concat_mlp
+  hidden_dims: [512, 256]
+  activation: gelu
+  dropout: 0.1
+
+cross_attention:
+  num_layers: 4
+  num_heads: 8
+  hidden_dim: 768
+  feedforward_dim: 2048
+  dropout: 0.1
+  bidirectional: true
+
+tensor_fusion:
+  rank: 32
+  hidden_dim: 768
+  dropout: 0.1

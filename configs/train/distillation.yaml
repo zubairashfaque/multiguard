@@ -1,0 +1,38 @@
+defaults:
+  - ../base
+
+training:
+  type: distillation
+  epochs: 20
+  batch_size: 64
+  gradient_accumulation_steps: 1
+  effective_batch_size: 64
+  learning_rate: 1.0e-3
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  lr_scheduler: cosine
+  max_grad_norm: 1.0
+  bf16: true
+  temperature: 4.0
+  alpha: 0.5
+  output_dir: models/checkpoints/distillation
+  save_strategy: steps
+  save_steps: 500
+  logging_steps: 50
+  eval_steps: 250
+
+teacher:
+  checkpoint: models/final/best_fusion
+  frozen: true
+
+student:
+  vision_backbone: google/efficientnet-b0
+  text_backbone: distilroberta-base
+  fusion: late_fusion
+  num_labels: 2
+  dropout: 0.1
+
+data:
+  dataset: hateful_memes
+  image_size: 224
+  max_text_length: 128

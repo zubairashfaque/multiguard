@@ -1,0 +1,69 @@
+# Data
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+data/processed/*
+!data/processed/.gitkeep
+data/features/*
+!data/features/.gitkeep
+data/external/*
+!data/external/.gitkeep
+
+# Models
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+models/final/*
+!models/final/.gitkeep
+models/exported/*
+!models/exported/.gitkeep
+
+# Tracking
+mlruns/
+wandb/
+.dvc/cache/
+feast_data/
+feature_store/
+
+# Environment
+.env
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# pytest
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# MLflow
+mlartifacts/
+
+# Grafana
+infrastructure/grafana/data/
+
+# Airflow
+logs/
+airflow.db
+airflow.cfg

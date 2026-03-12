@@ -1,0 +1,22 @@
+project:
+  name: multiguard
+  version: "0.1.0"
+  seed: 42
+
+device:
+  accelerator: gpu
+  precision: bf16-mixed
+  num_workers: 4
+
+logging:
+  level: INFO
+  wandb:
+    enabled: true
+    project: multiguard
+    entity: zubairashfaque-bnu
+
+paths:
+  data_dir: data/
+  output_dir: models/
+  reports_dir: reports/
+  configs_dir: configs/

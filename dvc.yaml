@@ -1,0 +1,39 @@
+stages:
+  ingest:
+    cmd: python scripts/ingest_data.py
+    deps:
+      - scripts/ingest_data.py
+      - src/data/
+    outs:
+      - data/processed/train
+      - data/processed/val
+      - data/processed/test
+
+  train_baseline:
+    cmd: python scripts/train.py --config configs/train/baseline.yaml
+    deps:
+      - scripts/train.py
+      - src/models/
+      - src/training/
+      - data/processed/train
+      - data/processed/val
+      - configs/train/baseline.yaml
+    outs:
+      - models/checkpoints/baseline
+    metrics:
+      - reports/baseline_metrics.json:
+          cache: false
+
+  evaluate:
+    cmd: python scripts/evaluate.py --config configs/experiment/baseline.yaml
+    deps:
+      - scripts/evaluate.py
+      - src/evaluation/
+      - models/checkpoints/baseline
+      - data/processed/test
+    metrics:
+      - reports/evaluation_metrics.json:
+          cache: false
+    plots:
+      - reports/figures/roc_curve.png:
+          cache: false

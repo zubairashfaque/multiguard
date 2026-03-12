@@ -1,0 +1,35 @@
+image_augmentation:
+  train:
+    random_resized_crop:
+      size: 224
+      scale: [0.8, 1.0]
+    horizontal_flip:
+      p: 0.5
+    color_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      saturation: 0.2
+      hue: 0.1
+    random_erasing:
+      p: 0.25
+      scale: [0.02, 0.1]
+  val:
+    resize: 256
+    center_crop: 224
+
+text_augmentation:
+  train:
+    synonym_replacement:
+      p: 0.1
+      max_replacements: 2
+    random_deletion:
+      p: 0.05
+  val: null
+
+multimodal_augmentation:
+  mixup:
+    alpha: 0.2
+    p: 0.3
+  cutmix:
+    alpha: 1.0
+    p: 0.3

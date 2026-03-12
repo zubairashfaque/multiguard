@@ -1,0 +1,24 @@
+defaults:
+  - ../base
+
+experiment:
+  name: fusion_ablation
+  description: "Compare late fusion, cross-attention, and tensor fusion strategies"
+  tags: [ablation, fusion, hateful_memes]
+
+ablation:
+  fusion_methods:
+    - late_fusion
+    - cross_attention
+    - tensor_fusion
+  backbones:
+    - vision: openai/clip-vit-large-patch14
+      text: roberta-base
+  metrics: [auroc, f1]
+  num_seeds: 3
+  seeds: [42, 123, 456]
+
+evaluation:
+  dataset: hateful_memes
+  split: test
+  batch_size: 64

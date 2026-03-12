@@ -1,0 +1,32 @@
+image:
+  size: 224
+  mean: [0.48145466, 0.4578275, 0.40821073]
+  std: [0.26862954, 0.26130258, 0.27577711]
+  interpolation: bicubic
+
+text:
+  tokenizer: roberta-base
+  max_length: 128
+  padding: max_length
+  truncation: true
+  add_special_tokens: true
+
+preprocessing:
+  deduplication:
+    method: hash
+    columns: [text, img]
+  filtering:
+    min_text_length: 3
+    max_text_length: 512
+    valid_image_extensions: [.jpg, .jpeg, .png]
+  cleaning:
+    strip_whitespace: true
+    normalize_unicode: true
+    remove_urls: false
+
+splitting:
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  stratify_by: label
+  seed: 42

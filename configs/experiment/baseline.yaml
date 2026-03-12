@@ -1,0 +1,19 @@
+defaults:
+  - ../base
+
+experiment:
+  name: baseline_hateful_memes
+  description: "Baseline multimodal classification with late fusion on Hateful Memes"
+  tags: [baseline, late_fusion, hateful_memes]
+
+model:
+  vision_backbone: openai/clip-vit-large-patch14
+  text_backbone: roberta-base
+  fusion: late_fusion
+  num_labels: 2
+
+evaluation:
+  metrics: [auroc, f1, accuracy, precision, recall]
+  dataset: hateful_memes
+  split: test
+  batch_size: 64

@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: infrastructure/docker/Dockerfile.serve
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ../src:/app/src
+      - ../configs:/app/configs
+      - ../models:/app/models
+    command: ["--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
