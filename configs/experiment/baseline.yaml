@@ -7,7 +7,7 @@ experiment:
   tags: [baseline, late_fusion, hateful_memes]
 
 model:
-  vision_backbone: openai/clip-vit-large-patch14
+  vision_backbone: openai/clip-vit-base-patch16
   text_backbone: roberta-base
   fusion: late_fusion
   num_labels: 2

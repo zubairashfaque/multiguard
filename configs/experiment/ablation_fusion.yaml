@@ -12,7 +12,7 @@ ablation:
     - cross_attention
     - tensor_fusion
   backbones:
-    - vision: openai/clip-vit-large-patch14
+    - vision: openai/clip-vit-base-patch16
       text: roberta-base
   metrics: [auroc, f1]
   num_seeds: 3

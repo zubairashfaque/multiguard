@@ -18,7 +18,7 @@
 
 > **Vision Backbone** &rarr; **Language Backbone** &rarr; **Multimodal Fusion** &rarr; **Task Heads** &rarr; **Explainability** &rarr; **FastAPI / Docker Serving**
 
-The project demonstrates an end-to-end workflow -- from data ingestion and multimodal model training to fusion ablation, knowledge distillation, and containerized serving -- designed to run on a single **RTX 3090/4090 (24 GB VRAM)**.
+The project demonstrates an end-to-end workflow -- from data ingestion and multimodal model training to fusion ablation, knowledge distillation, and containerized serving -- trained on a **Tesla P100-PCIE-16GB** (Kaggle) with FP16 mixed precision.
 
 ### What Makes This Project Different
 
@@ -36,14 +36,14 @@ The project demonstrates an end-to-end workflow -- from data ingestion and multi
 
 ## Key Results
 
-| Model Variant | Fusion | AUROC | F1 | Params | Latency (p95) |
-|:--------------|:-------|:-----:|:--:|:------:|:-------------:|
-| Baseline | Late (concat + MLP) | TBD | TBD | TBD | TBD |
-| Cross-Attention | Bidirectional 4-layer | TBD | TBD | TBD | TBD |
-| Tensor Fusion | Low-rank (rank=32) | TBD | TBD | TBD | TBD |
-| Distilled Student | Late (small) | TBD | TBD | TBD | TBD |
+| Model Variant | Fusion | AUROC | F1 | Accuracy | Params (M) | Size (MB) |
+|:--------------|:-------|:-----:|:--:|:--------:|:----------:|:---------:|
+| Baseline | Late (concat + MLP) | 0.6440 | 0.5876 | 0.5880 | 297.9 | 807.8 |
+| **Cross-Attention** | **Bidirectional 4-layer** | **0.6567** | **0.6299** | **0.6300** | **310.8** | **857.2** |
+| Tensor Fusion | Low-rank (rank=32) | 0.6502 | 0.5953 | 0.5980 | 297.4 | 805.7 |
+| Distilled Student | Late (small) | 0.6244 | 0.5221 | 0.5640 | 86.7 | 331.1 |
 
-> *Target metrics. Actual results will be logged to the [W&B Dashboard](https://wandb.ai) and [MLflow](http://localhost:5000) after training.*
+> *Trained on Kaggle (Tesla P100-PCIE-16GB) with FP16 mixed precision. Cross-attention achieves best AUROC (0.6567). Student retains 95% of teacher AUROC at 2.6x compression and 4.3x faster inference.*
 
 **Dataset:** [Facebook Hateful Memes Challenge](https://ai.facebook.com/tools/hatefulmemes/) (~10K memes, binary labels)
 
@@ -60,8 +60,8 @@ graph TB
     end
 
     subgraph "Training Pipeline"
-        D --> E["Baseline Training<br/>Late Fusion, lr=1e-4<br/>10 epochs, bf16"]
-        E --> F["Fusion Ablation<br/>Cross-Attn, Tensor Fusion<br/>3 seeds, 15 epochs"]
+        D --> E["Baseline Training<br/>Late Fusion, lr=1e-3<br/>15 epochs, fp16"]
+        E --> F["Fusion Ablation<br/>Cross-Attn, Tensor Fusion<br/>20 epochs, fp16"]
         F --> G["Knowledge Distillation<br/>Teacher→Student<br/>temp=4.0, alpha=0.5"]
     end
 
@@ -115,15 +115,15 @@ graph TB
 <td>CLIP ViT + RoBERTa with late fusion (concat + MLP)</td>
 <td>
 
-- Vision: CLIP ViT-B/16 (768-dim)
+- Vision: CLIP ViT-B/16 (512-dim)
 - Language: roberta-base (768-dim)
 - Fusion: concat → 2-layer MLP with dropout
-- LR: 1e-4, cosine schedule, warmup ratio 0.1
-- Batch: 32, 10 epochs
-- BF16 mixed precision
+- LR: 1e-3, cosine schedule, warmup ratio 0.1
+- Batch: 32, 15 epochs
+- FP16 mixed precision
 
 </td>
-<td>~2-4 hrs on RTX 3090</td>
+<td>Tesla P100-PCIE-16GB</td>
 </tr>
 <tr>
 <td><strong>Fusion Ablation</strong></td>
@@ -132,12 +132,12 @@ graph TB
 
 - Cross-attention: 4 layers, 8 heads, gated combination
 - Tensor fusion: rank=32, low-rank outer product
-- LR: 5e-5, cosine schedule
-- Batch: 16, 15 epochs
-- 3 random seeds for statistical significance
+- LR: 5e-4, cosine schedule
+- Batch: 32, 20 epochs
+- FP16 mixed precision
 
 </td>
-<td>~4-6 hrs on RTX 3090</td>
+<td>Tesla P100-PCIE-16GB</td>
 </tr>
 <tr>
 <td><strong>Knowledge Distillation</strong></td>
@@ -145,13 +145,13 @@ graph TB
 <td>
 
 - Teacher: best fusion model (frozen)
-- Student: EfficientNet + DistilRoBERTa (late fusion)
+- Student: EfficientNet-B0 + DistilRoBERTa (late fusion)
 - Temperature: 4.0, Alpha: 0.5
-- LR: 1e-3, 20 epochs, batch 64
+- LR: 1e-3, 20 epochs, batch 32 (grad_accum=2)
 - KL divergence + hard label loss
 
 </td>
-<td>~1-2 hrs on RTX 3090</td>
+<td>Tesla P100-PCIE-16GB</td>
 </tr>
 <tr>
 <td><strong>ONNX Export</strong></td>
@@ -179,7 +179,7 @@ graph TB
 | Python | 3.10+ | `python3 --version` |
 | Poetry | 2.0+ | `poetry --version` |
 | Git | Any recent | `git --version` |
-| NVIDIA GPU | 16+ GB VRAM (RTX 3090/4090) | `nvidia-smi` |
+| NVIDIA GPU | 16+ GB VRAM (Tesla P100 / RTX 3090+) | `nvidia-smi` |
 | NVIDIA Drivers | 525+ | `nvidia-smi` (top row) |
 | CUDA Toolkit | 12.1+ | `nvcc --version` |
 
@@ -492,15 +492,15 @@ All hyperparameters are externalized into YAML files -- **nothing is hardcoded i
 configs/
 ├── base.yaml                      # Shared defaults (seed=42, device, logging, paths)
 ├── train/
-│   ├── baseline.yaml              # Late fusion: lr=1e-4, batch=32, 10 epochs
-│   ├── fusion_ablation.yaml       # Cross-attention + tensor: lr=5e-5, 15 epochs
+│   ├── baseline.yaml              # Late fusion: lr=1e-3, batch=32, 15 epochs
+│   ├── fusion_ablation.yaml       # Cross-attention + tensor: lr=5e-4, 20 epochs
 │   └── distillation.yaml          # KD: temp=4.0, alpha=0.5, lr=1e-3, 20 epochs
 ├── model/
 │   ├── backbone.yaml              # Vision (CLIP/ViT/DINOv2/Swin) + Language (RoBERTa/BERT)
 │   ├── fusion.yaml                # Late | CrossAttn (4L, 8H) | Tensor (rank=32)
 │   └── heads.yaml                 # Classifier (2 labels) | Retrieval (256-dim) | VQA (3129)
 ├── data/
-│   ├── preprocessing.yaml         # Image 224x224, text max_length=128, 80/10/10 split
+│   ├── preprocessing.yaml         # Image 224x224, text max_length=77, 80/10/10 split
 │   └── augmentation.yaml          # Image, text, and multimodal augmentations
 ├── inference/
 │   ├── serving.yaml               # API config, cascade, rate limits (60 req/min)
@@ -529,14 +529,14 @@ multiguard/
 │   └── cd.yml                        # On tag v*: build & push Docker images to ghcr.io
 │
 ├── configs/                          # ALL hyperparameters (never hardcoded)
-│   ├── base.yaml                     # Shared: seed=42, bf16, W&B project, paths
-│   ├── train/baseline.yaml           # Late fusion: lr=1e-4, batch=32, 10 epochs
-│   ├── train/fusion_ablation.yaml    # Cross-attn + tensor: lr=5e-5, 15 epochs, 3 seeds
+│   ├── base.yaml                     # Shared: seed=42, fp16, W&B project, paths
+│   ├── train/baseline.yaml           # Late fusion: lr=1e-3, batch=32, 15 epochs
+│   ├── train/fusion_ablation.yaml    # Cross-attn + tensor: lr=5e-4, 20 epochs
 │   ├── train/distillation.yaml       # KD: temp=4.0, alpha=0.5, lr=1e-3
 │   ├── model/backbone.yaml           # CLIP ViT / DINOv2 / Swin + RoBERTa / BERT
 │   ├── model/fusion.yaml             # Late | CrossAttn (4L, 8H) | Tensor (rank=32)
 │   ├── model/heads.yaml              # Classifier | Retrieval | VQA heads
-│   ├── data/preprocessing.yaml       # Image 224x224, text 128 tokens, 80/10/10
+│   ├── data/preprocessing.yaml       # Image 224x224, text 77 tokens, 80/10/10
 │   ├── data/augmentation.yaml        # Image/text/multimodal augmentations
 │   ├── inference/serving.yaml        # Cascade, rate limits, timeout
 │   ├── inference/quantization.yaml   # ONNX opset=17, int8 quantization
@@ -785,7 +785,7 @@ poetry run pytest tests/ -v --tb=short
 
 | Type | Model | Output Dim | Source |
 |------|-------|:----------:|--------|
-| **Vision** | CLIP ViT-B/16 | 768 | `openai/clip-vit-base-patch16` |
+| **Vision** | CLIP ViT-B/16 | 512 | `openai/clip-vit-base-patch16` |
 | **Vision** | DINOv2-base | 768 | `facebook/dinov2-base` |
 | **Vision** | Swin-base | 1024 | `microsoft/swin-base-patch4-window7-224` |
 | **Vision** | ViT-base | 768 | `google/vit-base-patch16-224` |
@@ -1010,13 +1010,14 @@ MultiGuard supports a 2-stage cascade for efficient production inference:
 ## Roadmap
 
 - [x] Phase 1: Project scaffolding, config system, data pipeline, CI/CD, tests
-- [ ] Download Hateful Memes dataset and run baseline training
-- [ ] Train fusion ablation (cross-attention, tensor fusion) and select best
-- [ ] Run knowledge distillation and export ONNX models
+- [x] Download Hateful Memes dataset and run baseline training (AUROC 0.6440)
+- [x] Train fusion ablation — cross-attention best (AUROC 0.6567, F1 0.6299)
+- [x] Run knowledge distillation (86.7M params, 2.6x compression, 4.3x faster)
+- [x] ONNX export with int8 quantization (331.1 MB → 206.3 MB)
+- [x] Full training on Kaggle (Tesla P100-PCIE-16GB)
+- [x] Create blog post on multimodal fusion strategies
 - [ ] Build Feast feature store and Evidently drift monitoring
-- [ ] Create Jupyter notebooks (EDA, training analysis, explainability)
 - [ ] Deploy to cloud with full MLOps stack
-- [ ] Create blog post on multimodal fusion strategies
 
 ---
 

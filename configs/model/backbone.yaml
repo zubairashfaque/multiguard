@@ -1,9 +1,9 @@
 vision:
   clip:
-    model_id: openai/clip-vit-large-patch14
-    hidden_size: 1024
+    model_id: openai/clip-vit-base-patch16
+    hidden_size: 512
     image_size: 224
-    patch_size: 14
+    patch_size: 16
   vit:
     model_id: google/vit-base-patch16-224
     hidden_size: 768
@@ -38,10 +38,10 @@ language:
 
 multimodal:
   clip:
-    model_id: openai/clip-vit-large-patch14
-    vision_hidden_size: 1024
+    model_id: openai/clip-vit-base-patch16
+    vision_hidden_size: 512
     text_hidden_size: 768
-    projection_dim: 768
+    projection_dim: 512
   siglip:
     model_id: google/siglip-base-patch16-224
     vision_hidden_size: 768

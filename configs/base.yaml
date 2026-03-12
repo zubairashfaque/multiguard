@@ -5,7 +5,7 @@ project:
 
 device:
   accelerator: gpu
-  precision: bf16-mixed
+  precision: fp16-mixed
   num_workers: 4
 
 logging:
