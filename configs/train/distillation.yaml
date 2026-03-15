@@ -4,8 +4,8 @@ defaults:
 training:
   type: distillation
   epochs: 20
-  batch_size: 32
-  gradient_accumulation_steps: 2
+  batch_size: 2
+  gradient_accumulation_steps: 32
   effective_batch_size: 64
   learning_rate: 1.0e-3
   warmup_ratio: 0.1
@@ -22,19 +22,19 @@ training:
   eval_steps: 250
 
 teacher:
-  checkpoint: models/final/best_fusion
+  checkpoint: models/checkpoints/baseline/best_model.pt
+  config: configs/train/baseline.yaml
   frozen: true
 
-student:
-  vision_backbone: google/efficientnet-b0
+model:
+  vision_backbone: openai/clip-vit-base-patch16
+  vision_dim: 512
   text_backbone: distilroberta-base
+  text_dim: 768
   fusion: late_fusion
   num_labels: 2
   dropout: 0.1
-
-student:
-  vision_dim: 1280
-  text_dim: 768
+  freeze_backbones: true
 
 data:
   dataset: hateful_memes

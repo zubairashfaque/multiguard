@@ -27,11 +27,8 @@ class LanguageBackbone(nn.Module):
         self.model_id = model_id
         self.hidden_size = hidden_size
         self.pretrained = pretrained
+        self._freeze = freeze
         self.encoder: nn.Module | None = None
-
-        if freeze and self.encoder is not None:
-            for param in self.encoder.parameters():
-                param.requires_grad = False
 
         logger.info(f"LanguageBackbone initialized: {model_id}, hidden_size={hidden_size}")
 
@@ -40,7 +37,12 @@ class LanguageBackbone(nn.Module):
         from transformers import AutoModel
 
         self.encoder = AutoModel.from_pretrained(self.model_id)
-        logger.info(f"Loaded language encoder: {self.model_id}")
+        if self._freeze:
+            for param in self.encoder.parameters():
+                param.requires_grad = False
+            logger.info(f"Loaded and froze language encoder: {self.model_id}")
+        else:
+            logger.info(f"Loaded language encoder: {self.model_id}")
 
     def forward(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor | None = None
@@ -56,6 +58,7 @@ class LanguageBackbone(nn.Module):
         """
         if self.encoder is None:
             self.load_encoder()
+            self.encoder.to(input_ids.device)
         outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
         return outputs.last_hidden_state[:, 0]  # CLS token
 

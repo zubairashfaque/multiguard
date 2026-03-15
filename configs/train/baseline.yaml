@@ -4,8 +4,8 @@ defaults:
 training:
   type: baseline
   epochs: 15
-  batch_size: 32
-  gradient_accumulation_steps: 2
+  batch_size: 4
+  gradient_accumulation_steps: 16
   effective_batch_size: 64
   learning_rate: 1.0e-3
   warmup_ratio: 0.1
@@ -27,6 +27,7 @@ model:
   fusion: late_fusion
   num_labels: 2
   dropout: 0.1
+  freeze_backbones: true
 
 data:
   dataset: hateful_memes

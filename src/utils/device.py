@@ -34,9 +34,9 @@ def get_device_info() -> DeviceInfo:
     if cuda_available:
         device = torch.device("cuda")
         device_name = torch.cuda.get_device_name(0)
-        vram_total = torch.cuda.get_device_properties(0).total_mem / (1024**3)
+        vram_total = torch.cuda.get_device_properties(0).total_memory / (1024**3)
         vram_free = (
-            torch.cuda.get_device_properties(0).total_mem - torch.cuda.memory_allocated(0)
+            torch.cuda.get_device_properties(0).total_memory - torch.cuda.memory_allocated(0)
         ) / (1024**3)
     else:
         device = torch.device("cpu")
@@ -59,7 +59,7 @@ def log_vram_usage(tag: str = "") -> None:
         return
     allocated = torch.cuda.memory_allocated(0) / (1024**3)
     reserved = torch.cuda.memory_reserved(0) / (1024**3)
-    total = torch.cuda.get_device_properties(0).total_mem / (1024**3)
+    total = torch.cuda.get_device_properties(0).total_memory / (1024**3)
     logger.info(
         f"[VRAM {tag}] Allocated: {allocated:.2f}GB | Reserved: {reserved:.2f}GB | Total: {total:.2f}GB"
     )

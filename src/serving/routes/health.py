@@ -2,6 +2,10 @@
 
 from fastapi import APIRouter
 
+from src.utils.logging import get_logger
+
+logger = get_logger(__name__)
+
 router = APIRouter()
 
 
@@ -12,7 +16,17 @@ async def health_check() -> dict[str, str]:
 
 
 @router.get("/ready")
-async def readiness_check() -> dict[str, str]:
+async def readiness_check() -> dict[str, str | bool]:
     """Readiness check — verifies model is loaded."""
-    # TODO: Check if model is actually loaded
-    return {"status": "ready", "service": "multiguard"}
+    try:
+        from src.serving.routes.predict import _model
+
+        model_loaded = _model is not None
+    except Exception:
+        model_loaded = False
+
+    return {
+        "status": "ready" if model_loaded else "not_ready",
+        "service": "multiguard",
+        "model_loaded": model_loaded,
+    }

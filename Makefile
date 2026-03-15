@@ -36,16 +36,17 @@ train-distill:
 	poetry run python scripts/train.py --config configs/train/distillation.yaml
 
 evaluate:
-	poetry run python scripts/evaluate.py --config configs/experiment/baseline.yaml
+	poetry run python scripts/evaluate.py --config configs/train/baseline.yaml --checkpoint models/checkpoints/baseline/best_model.pt
 
 benchmark:
 	poetry run python scripts/run_benchmark.py --all-checkpoints
 
 export-onnx:
-	poetry run python scripts/export_model.py --format onnx
+	poetry run python scripts/export_model.py --format onnx --checkpoint models/checkpoints/baseline/best_model.pt --config configs/train/baseline.yaml
 
+PORT ?= 8000
 serve:
-	poetry run uvicorn src.serving.app:app --host 0.0.0.0 --port 8000 --reload
+	poetry run uvicorn src.serving.app:app --host 0.0.0.0 --port $(PORT) --reload
 
 serve-docker:
 	docker-compose -f infrastructure/docker-compose.yml up --build

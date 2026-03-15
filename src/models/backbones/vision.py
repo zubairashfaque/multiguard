@@ -53,6 +53,7 @@ class VisionBackbone(nn.Module):
         """
         if self.encoder is None:
             self.load_encoder()
+            self.encoder.to(pixel_values.device)
         outputs = self.encoder(pixel_values=pixel_values)
         return outputs.last_hidden_state[:, 0]  # CLS token
 

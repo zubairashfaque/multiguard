@@ -1,0 +1,12 @@
+{
+  "checkpoint": "models/checkpoints/baseline/best_model.pt",
+  "split": "val",
+  "metrics": {
+    "accuracy": 0.586,
+    "f1": 0.5502327056870575,
+    "precision": 0.6261174593491166,
+    "recall": 0.586,
+    "auroc": 0.6441760000000001
+  },
+  "config": "configs/train/baseline.yaml"
+}
